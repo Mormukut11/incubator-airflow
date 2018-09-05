@@ -4526,23 +4526,22 @@ class XCom(Base, LoggingMixin):
         Index('idx_xcom_dag_task_date', dag_id, task_id, execution_date, unique=False),
     )
 
-    """
-    TODO: "pickling" has been deprecated and JSON is preferred.
-          "pickling" will be removed in Airflow 2.0.
-    """
+    @classmethod
+    def hydrate_json_value(value):
+        try:
+            return json.loads(value.decode('UTF-8'))
+        except (UnicodeEncodeError, ValueError):
+            enable_pickling = configuration.getboolean('core', 'enable_xcom_pickling')
+            if enable_pickling:
+                log = LoggingMixin().log
+                log.error(
+                    "Can not load requested XCom object pickling requested but it is "
+                    "no longer supported in Airflow 2.0+.")
+            raise
+
     @reconstructor
     def init_on_load(self):
-        enable_pickling = configuration.getboolean('core', 'enable_xcom_pickling')
-        if enable_pickling:
-            self.value = pickle.loads(self.value)
-        else:
-            try:
-                self.value = json.loads(self.value.decode('UTF-8'))
-            except (UnicodeEncodeError, ValueError):
-                # For backward-compatibility.
-                # Preventing errors in webserver
-                # due to XComs mixed with pickled and unpickled.
-                self.value = pickle.loads(self.value)
+        self.value = self.hydrate_json_value(self.value)
 
     def __repr__(self):
         return '<XCom "{key}" ({task_id} @ {execution_date})>'.format(
@@ -4562,25 +4561,20 @@ class XCom(Base, LoggingMixin):
             session=None):
         """
         Store an XCom value.
-        TODO: "pickling" has been deprecated and JSON is preferred.
-              "pickling" will be removed in Airflow 2.0.
         :return: None
         """
         session.expunge_all()
 
         enable_pickling = configuration.getboolean('core', 'enable_xcom_pickling')
         if enable_pickling:
-            value = pickle.dumps(value)
-        else:
-            try:
-                value = json.dumps(value).encode('UTF-8')
-            except ValueError:
-                log = LoggingMixin().log
-                log.error("Could not serialize the XCOM value into JSON. "
-                          "If you are using pickles instead of JSON "
-                          "for XCOM, then you need to enable pickle "
-                          "support for XCOM in your airflow config.")
-                raise
+            log = LoggingMixin().log
+            log.warning("Pickling requested, no longer supported in Airflow 2.0+")
+        try:
+            value = json.dumps(value).encode('UTF-8')
+        except ValueError:
+            log = LoggingMixin().log
+            log.error("Could not serialize the XCOM value into JSON.")
+            raise
 
         # remove any duplicate XComs
         session.query(cls).filter(
@@ -4612,8 +4606,6 @@ class XCom(Base, LoggingMixin):
                 session=None):
         """
         Retrieve an XCom value, optionally meeting certain criteria.
-        TODO: "pickling" has been deprecated and JSON is preferred.
-              "pickling" will be removed in Airflow 2.0.
         :return: XCom value
         """
         filters = []
@@ -4634,19 +4626,7 @@ class XCom(Base, LoggingMixin):
 
         result = query.first()
         if result:
-            enable_pickling = configuration.getboolean('core', 'enable_xcom_pickling')
-            if enable_pickling:
-                return pickle.loads(result.value)
-            else:
-                try:
-                    return json.loads(result.value.decode('UTF-8'))
-                except ValueError:
-                    log = LoggingMixin().log
-                    log.error("Could not deserialize the XCOM value from JSON. "
-                              "If you are using pickles instead of JSON "
-                              "for XCOM, then you need to enable pickle "
-                              "support for XCOM in your airflow config.")
-                    raise
+            return cls.hydrate_json_value(result.value)
 
     @classmethod
     @provide_session
@@ -4660,8 +4640,6 @@ class XCom(Base, LoggingMixin):
                  session=None):
         """
         Retrieve an XCom value, optionally meeting certain criteria
-        TODO: "pickling" has been deprecated and JSON is preferred.
-              "pickling" will be removed in Airflow 2.0.
         """
         filters = []
         if key:
