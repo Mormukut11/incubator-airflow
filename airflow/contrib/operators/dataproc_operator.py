@@ -74,7 +74,7 @@ class DataprocClusterCreateOperator(BaseOperator):
     :type custom_image: str
     :param properties: dict of properties to set on
         config files (e.g. spark-defaults.conf), see
-        https://cloud.google.com/dataproc/docs/reference/rest/v1/projects.regions.clusters#SoftwareConfig
+        https://cloud.google.com/dataproc/docs/concepts/configuring-clusters/cluster-properties
     :type properties: dict
     :param master_machine_type: Compute engine machine type to use for the master node
     :type master_machine_type: str
@@ -798,8 +798,7 @@ class DataProcHiveOperator(BaseOperator):
     :type job_name: str
     :param cluster_name: The name of the DataProc cluster.
     :type cluster_name: str
-    :param dataproc_hive_properties: Map for the Pig properties. Ideal to put in
-        default arguments
+    :param dataproc_hive_properties: Map for the Hive properties.
     :type dataproc_hive_properties: dict
     :param dataproc_hive_jars: URIs to jars provisioned in Cloud Storage (example: for
         UDFs and libs) and are ideal to put in default arguments.
@@ -897,8 +896,7 @@ class DataProcSparkSqlOperator(BaseOperator):
     :type job_name: str
     :param cluster_name: The name of the DataProc cluster. (templated)
     :type cluster_name: str
-    :param dataproc_spark_properties: Map for the Pig properties. Ideal to put in
-        default arguments
+    :param dataproc_spark_properties: Map for the Spark properties.
     :type dataproc_spark_properties: dict
     :param dataproc_spark_jars: URIs to jars provisioned in Cloud Storage (example:
         for UDFs and libs) and are ideal to put in default arguments.
@@ -1003,8 +1001,7 @@ class DataProcSparkOperator(BaseOperator):
     :type job_name: str
     :param cluster_name: The name of the DataProc cluster. (templated)
     :type cluster_name: str
-    :param dataproc_spark_properties: Map for the Pig properties. Ideal to put in
-        default arguments
+    :param dataproc_spark_properties: Map for the Spark properties.
     :type dataproc_spark_properties: dict
     :param dataproc_spark_jars: URIs to jars provisioned in Cloud Storage (example:
         for UDFs and libs) and are ideal to put in default arguments.
@@ -1111,8 +1108,7 @@ class DataProcHadoopOperator(BaseOperator):
     :type job_name: str
     :param cluster_name: The name of the DataProc cluster. (templated)
     :type cluster_name: str
-    :param dataproc_hadoop_properties: Map for the Pig properties. Ideal to put in
-        default arguments
+    :param dataproc_hadoop_properties: Map for the Hadoop properties.
     :type dataproc_hadoop_properties: dict
     :param dataproc_hadoop_jars: URIs to jars provisioned in Cloud Storage (example:
         for UDFs and libs) and are ideal to put in default arguments.
@@ -1219,8 +1215,7 @@ class DataProcPySparkOperator(BaseOperator):
     :type job_name: str
     :param cluster_name: The name of the DataProc cluster.
     :type cluster_name: str
-    :param dataproc_pyspark_properties: Map for the Pig properties. Ideal to put in
-        default arguments
+    :param dataproc_pyspark_properties: Map for the Spark properties.
     :type dataproc_pyspark_properties: dict
     :param dataproc_pyspark_jars: URIs to jars provisioned in Cloud Storage (example:
         for UDFs and libs) and are ideal to put in default arguments.
