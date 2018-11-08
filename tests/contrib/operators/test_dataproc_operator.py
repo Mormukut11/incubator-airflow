@@ -313,6 +313,22 @@ class DataprocClusterCreateOperatorTest(unittest.TestCase):
             cluster_data['config']['softwareConfig']['properties']
             ['dataproc:dataproc.allow.zero.workers'], "true")
 
+    def test_build_custom_properties_cluster(self):
+        dataproc_operator = DataprocClusterCreateOperator(
+            task_id=TASK_ID,
+            cluster_name=CLUSTER_NAME,
+            project_id=PROJECT_ID,
+            num_workers=5,
+            properties={"a": "b"},
+            num_preemptible_workers=0,
+            zone=ZONE,
+            dag=self.dag
+        )
+        cluster_data = dataproc_operator._build_cluster_data()
+        self.assertEqual(
+            cluster_data['config']['softwareConfig']['properties']
+            ['a'], "b")
+        
     def test_init_cluster_with_zero_workers_and_not_non_zero_preemtibles(self):
         with self.assertRaises(AssertionError):
             DataprocClusterCreateOperator(
@@ -609,6 +625,20 @@ class DataProcSparkOperatorTest(unittest.TestCase):
             )
 
             _assert_dataproc_job_id(mock_hook, dataproc_task)
+
+    @staticmethod
+    def test_dataproc_properties():
+        with patch(HOOK) as mock_hook:
+            dataproc_task = DataProcSparkOperator(
+                task_id=TASK_ID,
+                dataproc_spark_properties={"a": "b"}
+            )
+            dataproc_task.execute(None)
+            mock_hook.return_value.create_job_template.assert_called_once_with(
+                mock.ANY, mock.ANY, "sparkJob", {"a": "b"})
+
+
+
 
 
 class DataprocWorkflowTemplateInstantiateOperatorTest(unittest.TestCase):

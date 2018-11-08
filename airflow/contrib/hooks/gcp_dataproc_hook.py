@@ -102,12 +102,12 @@ class _DataProcJobBuilder:
                 "placement": {
                     "clusterName": cluster_name
                 },
-                job_type: {
+                self.job_type: {
                 }
             }
         }
         if properties is not None:
-            self.job["job"][job_type]["properties"] = properties
+            self.job["job"][self.job_type]["properties"] = properties
 
     def add_variables(self, variables):
         if variables is not None:

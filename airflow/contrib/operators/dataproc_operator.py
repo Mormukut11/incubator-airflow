@@ -1003,8 +1003,7 @@ class DataProcSparkOperator(BaseOperator):
     :type job_name: str
     :param cluster_name: The name of the DataProc cluster. (templated)
     :type cluster_name: str
-    :param dataproc_spark_properties: Map for the Pig properties. Ideal to put in
-        default arguments
+    :param dataproc_spark_properties: Map for the Spark properties.
     :type dataproc_spark_properties: dict
     :param dataproc_spark_jars: URIs to jars provisioned in Cloud Storage (example:
         for UDFs and libs) and are ideal to put in default arguments.
@@ -1084,7 +1083,7 @@ class DataProcSparkOperator(BaseOperator):
         job_to_submit = job.build()
         self.dataproc_job_id = job_to_submit["job"]["reference"]["jobId"]
 
-        hook.submit(hook.project_id, job_to_submit, self.region, self.job_error_states)
+        hook.submit(hook.project_id, job, self.region, self.job_error_states)
 
 
 class DataProcHadoopOperator(BaseOperator):
